@@ -208,85 +208,95 @@ export default function Home() {
         </section>
 
         {/* Experience */}
-        <section className="mb-20 max-w-3xl">
-          <SectionTitle>Experience</SectionTitle>
-          {EXPERIENCE.map((e) => (
-            <div key={e.role} className="mb-6">
-              <div className="flex items-baseline justify-between gap-4 mb-2">
-                <h3 className="text-lg font-medium">
-                  {e.role} · {e.org}
-                </h3>
-                <span className="text-sm text-neutral-500 dark:text-neutral-500 whitespace-nowrap">
-                  {e.period}
-                </span>
+        <section className="mb-20">
+          <div className="max-w-4xl mx-auto">
+            <SectionTitle>Experience</SectionTitle>
+            {EXPERIENCE.map((e) => (
+              <div key={e.role} className="mb-6">
+                <div className="flex items-baseline justify-between gap-4 mb-2">
+                  <h3 className="text-lg font-medium">
+                    {e.role} · {e.org}
+                  </h3>
+                  <span className="text-sm text-neutral-500 dark:text-neutral-500 whitespace-nowrap">
+                    {e.period}
+                  </span>
+                </div>
+                <ul className="list-disc list-outside ml-5 space-y-1 text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                  {e.points.map((pt, i) => (
+                    <li key={i} className="text-sm">{pt}</li>
+                  ))}
+                </ul>
               </div>
-              <ul className="list-disc list-outside ml-5 space-y-1 text-neutral-600 dark:text-neutral-400 leading-relaxed">
-                {e.points.map((pt, i) => (
-                  <li key={i} className="text-sm">{pt}</li>
-                ))}
-              </ul>
+            ))}
             </div>
-          ))}
         </section>
 
         {/* Publication */}
-        <section className="mb-20 max-w-3xl">
-          <SectionTitle>Publication</SectionTitle>
-          <h3 className="text-lg font-medium leading-snug mb-1">{PUBLICATION.title}</h3>
-          <p className="text-sm text-neutral-500 dark:text-neutral-500 mb-2">{PUBLICATION.venue}</p>
-          <p className="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">
-            {PUBLICATION.detail}
-          </p>
+        <section className="mb-20">
+          <div className="max-w-4xl mx-auto">
+            <SectionTitle>Publication</SectionTitle>
+            <h3 className="text-lg font-medium leading-snug mb-1">{PUBLICATION.title}</h3>
+            <p className="text-sm text-neutral-500 dark:text-neutral-500 mb-2">{PUBLICATION.venue}</p>
+            <p className="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">
+              {PUBLICATION.detail}
+            </p> 
+          </div>
         </section>
 
         {/* Education */}
-        <section className="mb-20 max-w-3xl">
-          <SectionTitle>Education</SectionTitle>
-          {EDUCATION.map((ed) => (
-            <div key={ed.school} className="mb-6">
-              <div className="flex items-baseline justify-between gap-4 mb-1">
-                <h3 className="text-lg font-medium">{ed.school}</h3>
-                <span className="text-sm text-neutral-500 dark:text-neutral-500 whitespace-nowrap">
-                  {ed.period}
-                </span>
+        <section className="mb-20">
+          <div className="max-w-4xl mx-auto">
+            <SectionTitle>Education</SectionTitle>
+            {EDUCATION.map((ed) => (
+              <div key={ed.school} className="mb-6">
+                <div className="flex items-baseline justify-between gap-4 mb-1">
+                  <h3 className="text-lg font-medium">{ed.school}</h3>
+                  <span className="text-sm text-neutral-500 dark:text-neutral-500 whitespace-nowrap">
+                    {ed.period}
+                  </span>
+                </div>
+                <p className="text-sm text-neutral-700 dark:text-neutral-300 mb-1">{ed.degree}</p>
+                <p className="text-sm text-neutral-600 dark:text-neutral-400">{ed.detail}</p>
               </div>
-              <p className="text-sm text-neutral-700 dark:text-neutral-300 mb-1">{ed.degree}</p>
-              <p className="text-sm text-neutral-600 dark:text-neutral-400">{ed.detail}</p>
-            </div>
-          ))}
-        </section>
-
-        {/* About */}
-        <section className="mb-20 max-w-3xl">
-          <SectionTitle>About</SectionTitle>
-          <p className="text-neutral-600 dark:text-neutral-400 leading-relaxed mb-4">
-            I&apos;m an M.Sc. Interdisciplinary Robotics student at Purdue, focused on
-            reinforcement learning and control for legged and humanoid robots. I work
-            across the full stack: RL policy training in Isaac Lab and MuJoCo,
-            sim-to-sim and sim-to-real transfer, behavior-tree-based decision systems,
-            and the ROS2 / C++ infrastructure that ties it together.
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {CERTS.map((c) => (
-              <span
-                key={c}
-                className="text-xs px-2 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400"
-              >
-                {c}
-              </span>
             ))}
           </div>
         </section>
 
+        {/* About */}
+        <section className="mb-20">
+          <div className="max-w-4xl mx-auto">
+            <SectionTitle>About</SectionTitle>
+            <p className="text-neutral-600 dark:text-neutral-400 leading-relaxed mb-4">
+              I&apos;m an M.Sc. Interdisciplinary Robotics student at Purdue, focused on
+              reinforcement learning and control for legged and humanoid robots. I work
+              across the full stack: RL policy training in Isaac Lab and MuJoCo,
+              sim-to-sim and sim-to-real transfer, behavior-tree-based decision systems,
+              and the ROS2 / C++ infrastructure that ties it together.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {CERTS.map((c) => (
+                <span
+                  key={c}
+                  className="text-xs px-2 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400"
+                >
+                  {c}
+                </span>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* Contact */}
-        <section className="max-w-3xl">
-          <SectionTitle>Contact</SectionTitle>
-          <p className="text-neutral-600 dark:text-neutral-400 leading-relaxed">
-            Open to roles in RL, robot learning, and behavior/controls engineering.{" "}
-            <a href={`mailto:${INFO.email}`} className="underline underline-offset-4 hover:text-violet-500 transition-colors">
-              {INFO.email}
-            </a>
-          </p>
+        <section className="mb-20">
+          <div className="max-w-4xl mx-auto">
+            <SectionTitle>Contact</SectionTitle>
+            <p className="text-neutral-600 dark:text-neutral-400 leading-relaxed">
+              Open to roles in RL, robot learning, and behavior/controls engineering.{" "}
+              <a href={`mailto:${INFO.email}`} className="underline underline-offset-4 hover:text-violet-500 transition-colors">
+                {INFO.email}
+              </a>
+            </p>
+          </div>
         </section>
 
       </div>
