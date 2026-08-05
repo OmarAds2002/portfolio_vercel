@@ -7,9 +7,9 @@ import { useState, useEffect } from "react";
 // ─────────────────────────────────────────────────────────────
 const INFO = {
   name: "Omar Ads",
-  tagline: "M.Sc. Robotics @ Purdue — reinforcement learning & behavior systems for  robots",
+  tagline: "M.Sc. Robotics @ Purdue — reinforcement learning & behavior systems for robots",
   github: "https://github.com/OmarAds2002",
-  linkedin: "https://www.linkedin.com/in/omar-ads-2aa465203/",  // ← update this
+  linkedin: "https://www.linkedin.com/in/omar-ads-2aa465203/",
   email: "omarads2002@gmail.com",
 };
 
@@ -26,7 +26,7 @@ const PROJECTS = [
     video: "/patrol-demo.mp4",
   },
   {
-    title: "MuJoCo Pick-and-Place (RL)",
+    title: "MuJoCo Pick-and-Place",
     status: "shipped",
     blurb:
       "A 6-DOF torque-controlled pick-and-place environment trained with PPO and SAC. SAC reached a 1.0 success rate with domain randomization. Identified and fixed four distinct reward exploits.",
@@ -35,7 +35,7 @@ const PROJECTS = [
     video: "/pickplace-demo.mp4",
   },
   {
-    title: "Bimanual Handoff (In Progress)",
+    title: "Bimanual Handoff",
     status: "progress",
     blurb:
       "A two-arm manipulation task in Isaac Lab: coordinated cylinder handoff between arms, trained with a staged curriculum and domain randomization. Whole-body bimanual coordination for RL.",
@@ -43,6 +43,47 @@ const PROJECTS = [
     link: null,
     video: null,
   },
+];
+
+const EXPERIENCE = [
+  {
+    role: "AI/ML Engineer",
+    org: "Dar El Handasah",
+    period: "Apr 2024 – Present",
+    points: [
+      "Applied AI/ML to real-time perception, multi-agent coordination, and simulation data processing.",
+      "Built enterprise AI tools using LLMs, RAG pipelines, and data workflows for engineering decision-making.",
+    ],
+  },
+];
+
+const PUBLICATION = {
+  title: "Evaluation of Six Local Climate Zones Mapping Methods for UHI Studies",
+  venue: "Transactions in GIS (Wiley, Open Access), 2026",
+  detail:
+    "Co-authored research on GeoAI and urban sustainability. Achieved 95% classification accuracy using CNN-based models on Landsat 8 data.",
+};
+
+const EDUCATION = [
+  {
+    school: "Purdue University",
+    degree: "M.Sc. Interdisciplinary Robotics",
+    period: "Jan 2026 – Present",
+    detail: "Optimization Methods for Systems and Control, Intro to Robotics, Multi-Agent Systems",
+  },
+  {
+    school: "Monash University",
+    degree: "B.Eng. Electrical & Computer Systems Engineering (CGPA 3.6)",
+    period: "Feb 2020 – Dec 2023",
+    detail: "Minor in Artificial Intelligence in Engineering",
+  },
+];
+
+const CERTS = [
+  "Azure AI Engineer Associate (AI-102)",
+  "AWS Certified AI Practitioner",
+  "Azure AI Fundamentals (AI-900)",
+  "AWS Cloud Practitioner",
 ];
 // ─────────────────────────────────────────────────────────────
 
@@ -60,6 +101,14 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
+function SectionTitle({ children }: { children: React.ReactNode }) {
+  return (
+    <h2 className="text-sm font-medium uppercase tracking-widest text-neutral-500 dark:text-neutral-500 mb-8">
+      {children}
+    </h2>
+  );
+}
+
 export default function Home() {
   const [dark, setDark] = useState(true);
 
@@ -69,19 +118,19 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-white dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 transition-colors">
-      <div className="max-w-3xl mx-auto px-6 py-16 sm:py-24">
+      <div className="w-full max-w-[1800px] mx-auto px-8 py-16 sm:py-24">
 
         {/* Dark mode toggle */}
         <button
           onClick={() => setDark(!dark)}
-          className="fixed top-6 right-6 text-sm px-3 py-1.5 rounded-lg border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+          className="fixed top-6 right-6 text-sm px-3 py-1.5 rounded-lg border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors z-10"
           aria-label="Toggle dark mode"
         >
           {dark ? "Light" : "Dark"}
         </button>
 
         {/* Hero */}
-        <section className="mb-20">
+        <section className="mb-20 max-w-3xl">
           <h1 className="text-4xl sm:text-5xl font-semibold tracking-tight mb-4">
             {INFO.name}
           </h1>
@@ -101,78 +150,137 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Projects */}
+        {/* Projects — 2 per row, bigger cards + videos */}
         <section className="mb-20">
-          <h2 className="text-sm font-medium uppercase tracking-widest text-neutral-500 dark:text-neutral-500 mb-8">
-            Projects
-          </h2>
-          <div className="space-y-12">
+          <SectionTitle>Projects</SectionTitle>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {PROJECTS.map((p) => (
-              <div key={p.title} className="group">
-                <div className="flex items-center gap-3 mb-2">
-                  <h3 className="text-xl font-medium">
-                    {p.link ? (
-                      <a href={p.link} className="hover:text-violet-500 transition-colors">
-                        {p.title}
-                      </a>
-                    ) : (
-                      p.title
-                    )}
-                  </h3>
-                  <StatusBadge status={p.status} />
-                </div>
-                <p className="text-neutral-600 dark:text-neutral-400 leading-relaxed mb-4">
-                  {p.blurb}
-                </p>
-
-                {/* Video demo */}
-                {p.video && (
+              <div
+                key={p.title}
+                className="flex flex-col rounded-xl border border-neutral-200 dark:border-neutral-800 overflow-hidden bg-neutral-50 dark:bg-neutral-900/50"
+              >
+                {/* Video (or placeholder) */}
+                {p.video ? (
                   <video
                     src={p.video}
                     autoPlay
                     loop
                     muted
                     playsInline
-                    className="w-full rounded-lg border border-neutral-200 dark:border-neutral-800 mb-4"
+                    className="w-full aspect-video object-cover bg-neutral-200 dark:bg-neutral-800"
                   />
+                ) : (
+                  <div className="w-full aspect-video bg-neutral-200 dark:bg-neutral-800 flex items-center justify-center text-sm text-neutral-400 dark:text-neutral-600">
+                    Coming soon
+                  </div>
                 )}
 
-                <div className="flex flex-wrap gap-2">
-                  {p.tech.map((t) => (
-                    <span
-                      key={t}
-                      className="text-xs px-2 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400"
+                <div className="flex flex-col flex-1 p-6">
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <h3 className="text-lg font-medium leading-snug">{p.title}</h3>
+                    <StatusBadge status={p.status} />
+                  </div>
+                  <p className="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed mb-4 flex-1">
+                    {p.blurb}
+                  </p>
+                  <div className="flex flex-wrap gap-1.5 mb-4">
+                    {p.tech.map((t) => (
+                      <span
+                        key={t}
+                        className="text-xs px-2 py-0.5 rounded bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400"
+                      >
+                        {t}
+                      </span>
+                    ))}
+                  </div>
+                  {p.link && (
+                    <a
+                      href={p.link}
+                      className="text-sm underline underline-offset-4 hover:text-violet-500 transition-colors"
                     >
-                      {t}
-                    </span>
-                  ))}
+                      View on GitHub →
+                    </a>
+                  )}
                 </div>
               </div>
             ))}
           </div>
         </section>
 
+        {/* Experience */}
+        <section className="mb-20 max-w-3xl">
+          <SectionTitle>Experience</SectionTitle>
+          {EXPERIENCE.map((e) => (
+            <div key={e.role} className="mb-6">
+              <div className="flex items-baseline justify-between gap-4 mb-2">
+                <h3 className="text-lg font-medium">
+                  {e.role} · {e.org}
+                </h3>
+                <span className="text-sm text-neutral-500 dark:text-neutral-500 whitespace-nowrap">
+                  {e.period}
+                </span>
+              </div>
+              <ul className="list-disc list-outside ml-5 space-y-1 text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                {e.points.map((pt, i) => (
+                  <li key={i} className="text-sm">{pt}</li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </section>
+
+        {/* Publication */}
+        <section className="mb-20 max-w-3xl">
+          <SectionTitle>Publication</SectionTitle>
+          <h3 className="text-lg font-medium leading-snug mb-1">{PUBLICATION.title}</h3>
+          <p className="text-sm text-neutral-500 dark:text-neutral-500 mb-2">{PUBLICATION.venue}</p>
+          <p className="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">
+            {PUBLICATION.detail}
+          </p>
+        </section>
+
+        {/* Education */}
+        <section className="mb-20 max-w-3xl">
+          <SectionTitle>Education</SectionTitle>
+          {EDUCATION.map((ed) => (
+            <div key={ed.school} className="mb-6">
+              <div className="flex items-baseline justify-between gap-4 mb-1">
+                <h3 className="text-lg font-medium">{ed.school}</h3>
+                <span className="text-sm text-neutral-500 dark:text-neutral-500 whitespace-nowrap">
+                  {ed.period}
+                </span>
+              </div>
+              <p className="text-sm text-neutral-700 dark:text-neutral-300 mb-1">{ed.degree}</p>
+              <p className="text-sm text-neutral-600 dark:text-neutral-400">{ed.detail}</p>
+            </div>
+          ))}
+        </section>
+
         {/* About */}
-        <section className="mb-20">
-          <h2 className="text-sm font-medium uppercase tracking-widest text-neutral-500 dark:text-neutral-500 mb-8">
-            About
-          </h2>
-          <div className="text-neutral-600 dark:text-neutral-400 leading-relaxed space-y-4">
-            <p>
-              I&apos;m an M.Sc. Interdisciplinary Robotics student at Purdue, focused on
-              reinforcement learning and control for legged and humanoid robots. I work
-              across the full stack: RL policy training in Isaac Lab and MuJoCo,
-              sim-to-sim and sim-to-real transfer, behavior-tree-based decision systems,
-              and the ROS2 / C++ infrastructure that ties it together.
-            </p>
+        <section className="mb-20 max-w-3xl">
+          <SectionTitle>About</SectionTitle>
+          <p className="text-neutral-600 dark:text-neutral-400 leading-relaxed mb-4">
+            I&apos;m an M.Sc. Interdisciplinary Robotics student at Purdue, focused on
+            reinforcement learning and control for legged and humanoid robots. I work
+            across the full stack: RL policy training in Isaac Lab and MuJoCo,
+            sim-to-sim and sim-to-real transfer, behavior-tree-based decision systems,
+            and the ROS2 / C++ infrastructure that ties it together.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {CERTS.map((c) => (
+              <span
+                key={c}
+                className="text-xs px-2 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400"
+              >
+                {c}
+              </span>
+            ))}
           </div>
         </section>
 
         {/* Contact */}
-        <section>
-          <h2 className="text-sm font-medium uppercase tracking-widest text-neutral-500 dark:text-neutral-500 mb-8">
-            Contact
-          </h2>
+        <section className="max-w-3xl">
+          <SectionTitle>Contact</SectionTitle>
           <p className="text-neutral-600 dark:text-neutral-400 leading-relaxed">
             Open to roles in RL, robot learning, and behavior/controls engineering.{" "}
             <a href={`mailto:${INFO.email}`} className="underline underline-offset-4 hover:text-violet-500 transition-colors">
