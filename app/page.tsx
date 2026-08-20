@@ -52,7 +52,7 @@ const PROJECTS = [
     tech: ["Isaac Lab", "PPO", "RSL-RL", "USD", "Domain Rand"],
     link: "https://github.com/OmarAds2002/bimanual-rl",
     post: "bimanual-ur10-handoff",
-    video: "/handoff_075x_smooth.mp4",
+    video: "/handoff _075x_smooth.mp4",
   },
 ];
 
@@ -115,7 +115,7 @@ const SKILLS = [
   { name: "Behavior Trees (BT.CPP v4)", level: 2, target: 3, jobs: ["C", "B"] },
   { name: "Python / PyTorch", level: 2, target: 3, jobs: ["A", "C"] },
   { name: "Isaac Lab / Isaac Sim", level: 2, target: 3, jobs: ["A", "B"] },
-  { name: "ROS2 / Nav2", level: 2, target: 2, jobs: ["C", "B"] },
+  { name: "ROS2 / Nav2", level: 2, target: 3, jobs: ["C", "B"] },
   { name: "C++", level: 2, target: 3, jobs: ["C", "B"] },
   { name: "Sim-to-Real Transfer", level: 2, target: 3, jobs: ["A", "B"] },
   { name: "Domain Randomization", level: 2, target: 2, jobs: ["A"] },
@@ -442,11 +442,22 @@ export default function Home() {
             <SectionTitle>About</SectionTitle>
             <Reveal>
               <p className="text-neutral-400 leading-relaxed mb-4">
-                I&apos;m an M.Sc. Interdisciplinary Robotics student at Purdue, focused on
-                reinforcement learning and control for legged and humanoid robots. I work
-                across the full stack: RL policy training in Isaac Lab and MuJoCo,
-                sim-to-sim and sim-to-real transfer, behavior-tree-based decision systems,
-                and the ROS2 / C++ infrastructure that ties it together.
+                I spent a year and a half as an AI/ML engineer before committing
+                fully to robotics — the field I&apos;d wanted to be in all along.
+                That work grounded me in the machine learning side (LLMs, RAG,
+                real-time perception, production data workflows), and robotics is
+                where I put it to use: reinforcement learning and control for
+                legged and humanoid systems, where the learning and the physics
+                have to work together.
+              </p>
+              <p className="text-neutral-400 leading-relaxed mb-4">
+                Today I work across the full stack: RL policy training in Isaac
+                Lab and MuJoCo, sim-to-sim and sim-to-real transfer,
+                behavior-tree decision systems, and the ROS2 / C++ infrastructure
+                that ties it together. I&apos;m building toward behavior and
+                controls engineering for the teams shipping real manipulation and
+                locomotion — and closing the classical-control side of that gap
+                deliberately as I go.
               </p>
               <div className="flex flex-wrap gap-2">
                 {CERTS.map((c) => (
@@ -467,12 +478,35 @@ export default function Home() {
           <div className="max-w-4xl mx-auto">
             <SectionTitle>Contact</SectionTitle>
             <Reveal>
-              <p className="text-neutral-400 leading-relaxed">
-                Open to roles in RL, robot learning, and behavior/controls engineering.{" "}
-                <a href={`mailto:${INFO.email}`} className="underline underline-offset-4 hover:text-violet-400 transition-colors">
-                  {INFO.email}
-                </a>
+              <p className="text-neutral-400 leading-relaxed mb-6">
+                Open to roles in RL, robot learning, and behavior / controls
+                engineering. The fastest way to reach me is email — I read
+                everything.
               </p>
+              <div className="flex flex-wrap items-center gap-3">
+                <a
+                  href={`mailto:${INFO.email}`}
+                  className="text-sm px-4 py-2 rounded-lg border border-violet-500/40 text-violet-300 hover:bg-violet-500/10 transition-colors"
+                >
+                  Email me
+                </a>
+                <a
+                  href={INFO.linkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm px-4 py-2 rounded-lg border border-neutral-700 text-neutral-300 hover:bg-neutral-800 transition-colors"
+                >
+                  LinkedIn
+                </a>
+                <a
+                  href="/omar-ads-resume.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm px-4 py-2 rounded-lg border border-neutral-700 text-neutral-300 hover:bg-neutral-800 transition-colors"
+                >
+                  Download résumé (PDF)
+                </a>
+              </div>
             </Reveal>
           </div>
         </section>
