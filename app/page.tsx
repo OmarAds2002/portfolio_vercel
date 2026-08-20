@@ -41,7 +41,7 @@ const PROJECTS = [
       "Two UR10 arms trained to hand off a cylinder in Isaac Lab with PPO. 84% success rate, zero drops, 1024 parallel environments on a single GPU. Debugged a weld-geometry collision that caused persistent policy plateaus, then solved a hold-and-wait exploit with a mutual-grasp constraint.",
     tech: ["Isaac Lab", "PPO", "RSL-RL", "USD", "Domain Rand"],
     link: "https://github.com/OmarAds2002/bimanual-rl",
-    video: "/handoff _075x_smooth.mp4",
+    video: "/handoff_075x_smooth.mp4",
   },
 ];
 
