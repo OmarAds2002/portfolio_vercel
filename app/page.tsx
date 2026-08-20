@@ -41,7 +41,7 @@ const PROJECTS = [
       "Two UR10 arms trained to hand off a cylinder in Isaac Lab with PPO. 84% success rate, zero drops, 1024 parallel environments on a single GPU. Debugged a weld-geometry collision that caused persistent policy plateaus, then solved a hold-and-wait exploit with a mutual-grasp constraint.",
     tech: ["Isaac Lab", "PPO", "RSL-RL", "USD", "Domain Rand"],
     link: "https://github.com/OmarAds2002/bimanual-rl",
-    video: "/handoff_075x_smooth.mp4",
+    video: "/handoff _075x_smooth.mp4",
   },
 ];
 
@@ -119,14 +119,19 @@ export default function Home() {
       <div className="w-full max-w-[1800px] mx-auto px-8 py-16 sm:py-24">
 
         {/* Hero */}
-        <section className="mb-20 max-w-3xl">
-          <h1 className="text-4xl sm:text-5xl font-semibold tracking-tight mb-4">
+        <section className="relative mb-20 max-w-3xl">
+          {/* Animated gradient orbs */}
+          <div className="pointer-events-none absolute -top-20 -left-20 w-[500px] h-[500px] rounded-full bg-violet-600/10 blur-[120px] animate-[drift_12s_ease-in-out_infinite]" />
+          <div className="pointer-events-none absolute -top-10 left-1/3 w-[400px] h-[400px] rounded-full bg-indigo-500/8 blur-[100px] animate-[drift_16s_ease-in-out_infinite_reverse]" />
+          <div className="pointer-events-none absolute top-10 -left-10 w-[350px] h-[350px] rounded-full bg-fuchsia-500/6 blur-[100px] animate-[drift_20s_ease-in-out_infinite]" />
+
+          <h1 className="relative text-4xl sm:text-5xl font-semibold tracking-tight mb-4">
             {INFO.name}
           </h1>
-          <p className="text-lg text-neutral-600 dark:text-neutral-400 leading-relaxed mb-8">
+          <p className="relative text-lg text-neutral-600 dark:text-neutral-400 leading-relaxed mb-8">
             {INFO.tagline}
           </p>
-          <div className="flex flex-wrap gap-4 text-sm">
+          <div className="relative flex flex-wrap gap-4 text-sm">
             <a href={INFO.github} className="underline underline-offset-4 hover:text-violet-500 transition-colors">
               GitHub
             </a>
