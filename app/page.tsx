@@ -105,17 +105,21 @@ const JOBS: Record<string, { label: string; cls: string }> = {
 };
 
 // current / target on a 0–100 scale; jobs = which role tracks it serves
+// Proficiency tiers, low → high. level/target are 1-based indices into this.
+const TIERS = ["Foundational", "Proficient", "Advanced"] as const;
+
+// level = where you are now; target = where you're headed (ghost segment)
 const SKILLS = [
-  { name: "Reinforcement Learning (PPO/SAC)", current: 85, target: 95, jobs: ["A", "B"] },
-  { name: "Isaac Lab / Isaac Sim", current: 80, target: 92, jobs: ["A", "B"] },
-  { name: "MuJoCo", current: 82, target: 90, jobs: ["A"] },
-  { name: "Behavior Trees (BT.CPP)", current: 85, target: 90, jobs: ["C", "B"] },
-  { name: "ROS2 / Nav2", current: 80, target: 88, jobs: ["C", "B"] },
-  { name: "C++", current: 78, target: 90, jobs: ["C", "B"] },
-  { name: "Python / PyTorch", current: 90, target: 92, jobs: ["A", "C"] },
-  { name: "Sim-to-Real Transfer", current: 65, target: 88, jobs: ["A", "B"] },
-  { name: "Domain Randomization", current: 78, target: 88, jobs: ["A"] },
-  { name: "Optimal Control / LQR", current: 45, target: 85, jobs: ["B"] },
+  { name: "Reinforcement Learning (PPO/SAC)", level: 3, target: 3, jobs: ["A", "B"] },
+  { name: "MuJoCo", level: 3, target: 3, jobs: ["A"] },
+  { name: "Behavior Trees (BT.CPP v4)", level: 3, target: 3, jobs: ["C", "B"] },
+  { name: "Python / PyTorch", level: 3, target: 3, jobs: ["A", "C"] },
+  { name: "Isaac Lab / Isaac Sim", level: 2, target: 3, jobs: ["A", "B"] },
+  { name: "ROS2 / Nav2", level: 2, target: 3, jobs: ["C", "B"] },
+  { name: "C++", level: 2, target: 3, jobs: ["C", "B"] },
+  { name: "Sim-to-Real Transfer", level: 2, target: 3, jobs: ["A", "B"] },
+  { name: "Domain Randomization", level: 2, target: 2, jobs: ["A"] },
+  { name: "Optimal Control / LQR", level: 1, target: 3, jobs: ["B"] },
 ];
 // ─────────────────────────────────────────────────────────────
 
@@ -156,12 +160,12 @@ function JobBadge({ id }: { id: string }) {
 
 function SkillBar({
   name,
-  current,
+  level,
   target,
   jobs,
 }: {
   name: string;
-  current: number;
+  level: number;
   target: number;
   jobs: string[];
 }) {
@@ -176,25 +180,35 @@ function SkillBar({
             ))}
           </span>
         </div>
-        <span className="text-xs text-neutral-500 tabular-nums shrink-0">
-          {current}
-          <span className="text-neutral-700"> / {target}</span>
+        <span className="text-xs text-neutral-400 shrink-0">
+          {TIERS[level - 1]}
+          {target > level && (
+            <span className="text-neutral-600"> → {TIERS[target - 1]}</span>
+          )}
         </span>
       </div>
-      <div className="relative h-2 rounded-full bg-neutral-800 overflow-hidden">
-        {/* target = faint ghost fill */}
-        <div
-          className="absolute inset-y-0 left-0 rounded-full bg-violet-500/25"
-          style={{ width: `${target}%` }}
-        />
-        {/* current = solid, animates in on scroll */}
-        <motion.div
-          className="absolute inset-y-0 left-0 rounded-full bg-violet-500"
-          initial={{ width: 0 }}
-          whileInView={{ width: `${current}%` }}
-          viewport={{ once: true, amount: 0.5 }}
-          transition={{ duration: 0.9, ease: "easeOut" }}
-        />
+      <div className="flex gap-1.5">
+        {[1, 2, 3].map((seg) => {
+          const filled = seg <= level;
+          const isTarget = seg > level && seg <= target;
+          return (
+            <motion.div
+              key={seg}
+              className={`h-2 flex-1 rounded-full ${
+                filled
+                  ? "bg-violet-500"
+                  : isTarget
+                  ? "bg-violet-500/20"
+                  : "bg-neutral-800"
+              }`}
+              initial={{ opacity: 0, scaleX: 0.4 }}
+              whileInView={{ opacity: 1, scaleX: 1 }}
+              viewport={{ once: true, amount: 0.6 }}
+              transition={{ duration: 0.5, delay: (seg - 1) * 0.08, ease: "easeOut" }}
+              style={{ transformOrigin: "left" }}
+            />
+          );
+        })}
       </div>
     </div>
   );
@@ -332,15 +346,16 @@ export default function Home() {
             {/* Legend */}
             <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mb-6 text-xs text-neutral-500">
               <div className="flex items-center gap-2">
-                <span className="inline-block w-6 h-2 rounded-full bg-violet-500" />
-                Current
+                <span className="inline-block w-5 h-2 rounded-full bg-violet-500" />
+                Current level
               </div>
               <div className="flex items-center gap-2">
-                <span className="inline-block w-6 h-2 rounded-full bg-violet-500/25" />
-                Target
+                <span className="inline-block w-5 h-2 rounded-full bg-violet-500/20" />
+                Targeting
               </div>
               <span className="text-neutral-700">·</span>
-              <span className="hidden sm:inline">Hover a skill to see role tracks:</span>
+              <span>Foundational → Proficient → Advanced</span>
+              <span className="text-neutral-700 hidden sm:inline">·</span>
               {Object.keys(JOBS).map((id) => (
                 <span key={id} className="flex items-center gap-1.5">
                   <JobBadge id={id} />
@@ -355,7 +370,7 @@ export default function Home() {
                 <SkillBar
                   key={s.name}
                   name={s.name}
-                  current={s.current}
+                  level={s.level}
                   target={s.target}
                   jobs={s.jobs}
                 />
