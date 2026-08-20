@@ -1,7 +1,3 @@
-"use client";
-
-import { useEffect } from "react";
-
 // ─────────────────────────────────────────────────────────────
 // EDIT YOUR INFO HERE
 // ─────────────────────────────────────────────────────────────
@@ -103,42 +99,73 @@ function StatusBadge({ status }: { status: string }) {
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
-    <h2 className="text-sm font-medium uppercase tracking-widest text-neutral-500 dark:text-neutral-500 mb-8">
+    <h2 className="text-sm font-medium uppercase tracking-widest text-neutral-500 mb-8">
       {children}
     </h2>
   );
 }
 
 export default function Home() {
-  useEffect(() => {
-    document.documentElement.classList.add("dark");
-  }, []);
-
   return (
-    <main className="min-h-screen bg-white dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 transition-colors">
+    <main className="min-h-screen bg-neutral-950 text-neutral-100">
+      {/* Hero animation keyframes — inlined so it needs no tailwind config */}
+      <style>{`
+        @keyframes drift {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          25%      { transform: translate(30px, -20px) scale(1.05); }
+          50%      { transform: translate(-20px, 15px) scale(0.95); }
+          75%      { transform: translate(15px, 25px) scale(1.02); }
+        }
+        .orb { position: absolute; border-radius: 9999px; pointer-events: none; will-change: transform; }
+        @media (prefers-reduced-motion: reduce) {
+          .orb { animation: none !important; }
+        }
+      `}</style>
+
       <div className="w-full max-w-[1800px] mx-auto px-8 py-16 sm:py-24">
 
         {/* Hero */}
         <section className="relative mb-20 max-w-3xl">
           {/* Animated gradient orbs */}
-          <div className="pointer-events-none absolute -top-20 -left-20 w-[500px] h-[500px] rounded-full bg-violet-600/10 blur-[120px] animate-[drift_12s_ease-in-out_infinite]" />
-          <div className="pointer-events-none absolute -top-10 left-1/3 w-[400px] h-[400px] rounded-full bg-indigo-500/8 blur-[100px] animate-[drift_16s_ease-in-out_infinite_reverse]" />
-          <div className="pointer-events-none absolute top-10 -left-10 w-[350px] h-[350px] rounded-full bg-fuchsia-500/6 blur-[100px] animate-[drift_20s_ease-in-out_infinite]" />
+          <div
+            className="orb"
+            style={{
+              top: "-80px", left: "-80px", width: "500px", height: "500px",
+              background: "rgba(124,58,237,0.18)", filter: "blur(120px)",
+              animation: "drift 12s ease-in-out infinite",
+            }}
+          />
+          <div
+            className="orb"
+            style={{
+              top: "-40px", left: "33%", width: "400px", height: "400px",
+              background: "rgba(99,102,241,0.14)", filter: "blur(100px)",
+              animation: "drift 16s ease-in-out infinite reverse",
+            }}
+          />
+          <div
+            className="orb"
+            style={{
+              top: "40px", left: "-40px", width: "350px", height: "350px",
+              background: "rgba(217,70,239,0.12)", filter: "blur(100px)",
+              animation: "drift 20s ease-in-out infinite",
+            }}
+          />
 
           <h1 className="relative text-4xl sm:text-5xl font-semibold tracking-tight mb-4">
             {INFO.name}
           </h1>
-          <p className="relative text-lg text-neutral-600 dark:text-neutral-400 leading-relaxed mb-8">
+          <p className="relative text-lg text-neutral-400 leading-relaxed mb-8">
             {INFO.tagline}
           </p>
           <div className="relative flex flex-wrap gap-4 text-sm">
-            <a href={INFO.github} className="underline underline-offset-4 hover:text-violet-500 transition-colors">
+            <a href={INFO.github} className="underline underline-offset-4 hover:text-violet-400 transition-colors">
               GitHub
             </a>
-            <a href={INFO.linkedin} className="underline underline-offset-4 hover:text-violet-500 transition-colors">
+            <a href={INFO.linkedin} className="underline underline-offset-4 hover:text-violet-400 transition-colors">
               LinkedIn
             </a>
-            <a href={`mailto:${INFO.email}`} className="underline underline-offset-4 hover:text-violet-500 transition-colors">
+            <a href={`mailto:${INFO.email}`} className="underline underline-offset-4 hover:text-violet-400 transition-colors">
               Email
             </a>
           </div>
@@ -151,7 +178,7 @@ export default function Home() {
             {PROJECTS.map((p) => (
               <div
                 key={p.title}
-                className="flex flex-col rounded-xl border border-neutral-200 dark:border-neutral-800 overflow-hidden bg-neutral-50 dark:bg-neutral-900/50"
+                className="flex flex-col rounded-xl border border-neutral-800 overflow-hidden bg-neutral-900/50"
               >
                 {/* Video (or placeholder) */}
                 {p.video ? (
@@ -161,10 +188,10 @@ export default function Home() {
                     loop
                     muted
                     playsInline
-                    className="w-full aspect-video object-cover bg-neutral-200 dark:bg-neutral-800"
+                    className="w-full aspect-video object-cover bg-neutral-800"
                   />
                 ) : (
-                  <div className="w-full aspect-video bg-neutral-200 dark:bg-neutral-800 flex items-center justify-center text-sm text-neutral-400 dark:text-neutral-600">
+                  <div className="w-full aspect-video bg-neutral-800 flex items-center justify-center text-sm text-neutral-600">
                     Coming soon
                   </div>
                 )}
@@ -174,14 +201,14 @@ export default function Home() {
                     <h3 className="text-lg font-medium leading-snug">{p.title}</h3>
                     <StatusBadge status={p.status} />
                   </div>
-                  <p className="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed mb-4 flex-1">
+                  <p className="text-sm text-neutral-400 leading-relaxed mb-4 flex-1">
                     {p.blurb}
                   </p>
                   <div className="flex flex-wrap gap-1.5 mb-4">
                     {p.tech.map((t) => (
                       <span
                         key={t}
-                        className="text-xs px-2 py-0.5 rounded bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400"
+                        className="text-xs px-2 py-0.5 rounded bg-neutral-800 text-neutral-400"
                       >
                         {t}
                       </span>
@@ -190,7 +217,7 @@ export default function Home() {
                   {p.link && (
                     <a
                       href={p.link}
-                      className="text-sm underline underline-offset-4 hover:text-violet-500 transition-colors"
+                      className="text-sm underline underline-offset-4 hover:text-violet-400 transition-colors"
                     >
                       View on GitHub →
                     </a>
@@ -211,11 +238,11 @@ export default function Home() {
                   <h3 className="text-lg font-medium">
                     {e.role} · {e.org}
                   </h3>
-                  <span className="text-sm text-neutral-500 dark:text-neutral-500 whitespace-nowrap">
+                  <span className="text-sm text-neutral-500 whitespace-nowrap">
                     {e.period}
                   </span>
                 </div>
-                <ul className="list-disc list-outside ml-5 space-y-1 text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                <ul className="list-disc list-outside ml-5 space-y-1 text-neutral-400 leading-relaxed">
                   {e.points.map((pt, i) => (
                     <li key={i} className="text-sm">{pt}</li>
                   ))}
@@ -230,10 +257,10 @@ export default function Home() {
           <div className="max-w-4xl mx-auto">
             <SectionTitle>Publication</SectionTitle>
             <h3 className="text-lg font-medium leading-snug mb-1">{PUBLICATION.title}</h3>
-            <p className="text-sm text-neutral-500 dark:text-neutral-500 mb-2">{PUBLICATION.venue}</p>
-            <p className="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">
+            <p className="text-sm text-neutral-500 mb-2">{PUBLICATION.venue}</p>
+            <p className="text-sm text-neutral-400 leading-relaxed">
               {PUBLICATION.detail}
-            </p> 
+            </p>
           </div>
         </section>
 
@@ -245,12 +272,12 @@ export default function Home() {
               <div key={ed.school} className="mb-6">
                 <div className="flex items-baseline justify-between gap-4 mb-1">
                   <h3 className="text-lg font-medium">{ed.school}</h3>
-                  <span className="text-sm text-neutral-500 dark:text-neutral-500 whitespace-nowrap">
+                  <span className="text-sm text-neutral-500 whitespace-nowrap">
                     {ed.period}
                   </span>
                 </div>
-                <p className="text-sm text-neutral-700 dark:text-neutral-300 mb-1">{ed.degree}</p>
-                <p className="text-sm text-neutral-600 dark:text-neutral-400">{ed.detail}</p>
+                <p className="text-sm text-neutral-300 mb-1">{ed.degree}</p>
+                <p className="text-sm text-neutral-400">{ed.detail}</p>
               </div>
             ))}
           </div>
@@ -260,7 +287,7 @@ export default function Home() {
         <section className="mb-20">
           <div className="max-w-4xl mx-auto">
             <SectionTitle>About</SectionTitle>
-            <p className="text-neutral-600 dark:text-neutral-400 leading-relaxed mb-4">
+            <p className="text-neutral-400 leading-relaxed mb-4">
               I&apos;m an M.Sc. Interdisciplinary Robotics student at Purdue, focused on
               reinforcement learning and control for legged and humanoid robots. I work
               across the full stack: RL policy training in Isaac Lab and MuJoCo,
@@ -271,7 +298,7 @@ export default function Home() {
               {CERTS.map((c) => (
                 <span
                   key={c}
-                  className="text-xs px-2 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400"
+                  className="text-xs px-2 py-0.5 rounded bg-neutral-800 text-neutral-400"
                 >
                   {c}
                 </span>
@@ -284,9 +311,9 @@ export default function Home() {
         <section className="mb-20">
           <div className="max-w-4xl mx-auto">
             <SectionTitle>Contact</SectionTitle>
-            <p className="text-neutral-600 dark:text-neutral-400 leading-relaxed">
+            <p className="text-neutral-400 leading-relaxed">
               Open to roles in RL, robot learning, and behavior/controls engineering.{" "}
-              <a href={`mailto:${INFO.email}`} className="underline underline-offset-4 hover:text-violet-500 transition-colors">
+              <a href={`mailto:${INFO.email}`} className="underline underline-offset-4 hover:text-violet-400 transition-colors">
                 {INFO.email}
               </a>
             </p>
