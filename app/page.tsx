@@ -342,7 +342,7 @@ export default function Home() {
         {/* Skills */}
         <section className="mb-20">
           <SectionTitle>Skills</SectionTitle>
-          <div className="max-w-4xl">
+          <div className="max-w-4xl mx-auto">
             {/* Legend */}
             <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mb-6 text-xs text-neutral-500">
               <div className="flex items-center gap-2">
