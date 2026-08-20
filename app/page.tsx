@@ -52,7 +52,7 @@ const PROJECTS = [
     tech: ["Isaac Lab", "PPO", "RSL-RL", "USD", "Domain Rand"],
     link: "https://github.com/OmarAds2002/bimanual-rl",
     post: "bimanual-ur10-handoff",
-    video: "/handoff _075x_smooth.mp4",
+    video: "/handoff_075x_smooth.mp4",
   },
 ];
 
@@ -436,6 +436,26 @@ export default function Home() {
           </div>
         </section>
 
+        {/* Certifications */}
+        <section className="mb-20">
+          <div className="max-w-4xl mx-auto">
+            <SectionTitle>Certifications</SectionTitle>
+            <Reveal>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {CERTS.map((c) => (
+                  <div
+                    key={c}
+                    className="flex items-center gap-2.5 rounded-lg border border-neutral-800 bg-neutral-900/40 px-3.5 py-2.5"
+                  >
+                    <span className="text-violet-400 text-sm shrink-0">✓</span>
+                    <span className="text-sm text-neutral-300">{c}</span>
+                  </div>
+                ))}
+              </div>
+            </Reveal>
+          </div>
+        </section>
+
         {/* About */}
         <section className="mb-20">
           <div className="max-w-4xl mx-auto">
@@ -450,7 +470,7 @@ export default function Home() {
                 legged and humanoid systems, where the learning and the physics
                 have to work together.
               </p>
-              <p className="text-neutral-400 leading-relaxed mb-4">
+              <p className="text-neutral-400 leading-relaxed">
                 Today I work across the full stack: RL policy training in Isaac
                 Lab and MuJoCo, sim-to-sim and sim-to-real transfer,
                 behavior-tree decision systems, and the ROS2 / C++ infrastructure
@@ -459,16 +479,6 @@ export default function Home() {
                 locomotion — and closing the classical-control side of that gap
                 deliberately as I go.
               </p>
-              <div className="flex flex-wrap gap-2">
-                {CERTS.map((c) => (
-                  <span
-                    key={c}
-                    className="text-xs px-2 py-0.5 rounded bg-neutral-800 text-neutral-400"
-                  >
-                    {c}
-                  </span>
-                ))}
-              </div>
             </Reveal>
           </div>
         </section>
