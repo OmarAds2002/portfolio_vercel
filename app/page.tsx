@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 
 // ─────────────────────────────────────────────────────────────
 // EDIT YOUR INFO HERE
@@ -35,13 +35,13 @@ const PROJECTS = [
     video: "/pickplace-demo.mp4",
   },
   {
-    title: "Bimanual Handoff",
-    status: "progress",
+    title: "Bimanual UR10 Handoff",
+    status: "shipped",
     blurb:
-      "A two-arm manipulation task in Isaac Lab: coordinated cylinder handoff between arms, trained with a staged curriculum and domain randomization. Whole-body bimanual coordination for RL.",
-    tech: ["Isaac Lab", "PPO", "Curriculum", "Domain Rand"],
-    link: null,
-    video: null,
+      "Two UR10 arms trained to hand off a cylinder in Isaac Lab with PPO. 84% success rate, zero drops, 1024 parallel environments on a single GPU. Debugged a weld-geometry collision that caused persistent policy plateaus, then solved a hold-and-wait exploit with a mutual-grasp constraint.",
+    tech: ["Isaac Lab", "PPO", "RSL-RL", "USD", "Domain Rand"],
+    link: "https://github.com/OmarAds2002/bimanual-rl",
+    video: "/handoff _075x_smooth.mp4",
   },
 ];
 
@@ -110,24 +110,13 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 }
 
 export default function Home() {
-  const [dark, setDark] = useState(true);
-
   useEffect(() => {
-    document.documentElement.classList.toggle("dark", dark);
-  }, [dark]);
+    document.documentElement.classList.add("dark");
+  }, []);
 
   return (
     <main className="min-h-screen bg-white dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 transition-colors">
       <div className="w-full max-w-[1800px] mx-auto px-8 py-16 sm:py-24">
-
-        {/* Dark mode toggle */}
-        <button
-          onClick={() => setDark(!dark)}
-          className="fixed top-6 right-6 text-sm px-3 py-1.5 rounded-lg border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors z-10"
-          aria-label="Toggle dark mode"
-        >
-          {dark ? "Light" : "Dark"}
-        </button>
 
         {/* Hero */}
         <section className="mb-20 max-w-3xl">
