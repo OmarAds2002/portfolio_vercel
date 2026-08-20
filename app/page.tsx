@@ -1,9 +1,21 @@
+"use client";
+
+import { motion } from "framer-motion";
+import dynamic from "next/dynamic";
+
+// Lazy-load the canvas hero animation — keeps it out of the initial bundle
+// so it never blocks first paint / LCP. Renders only on the client.
+const HeroScene = dynamic(() => import("./HeroScene"), {
+  ssr: false,
+});
+
 // ─────────────────────────────────────────────────────────────
 // EDIT YOUR INFO HERE
 // ─────────────────────────────────────────────────────────────
 const INFO = {
   name: "Omar Ads",
-  tagline: "M.Sc. Robotics @ Purdue — reinforcement learning & behavior systems for robots",
+  tagline:
+    "Robotics SW · RL · ROS2 — training manipulation & locomotion policies in Isaac Lab and MuJoCo. Targeting behavior / controls roles.",
   github: "https://github.com/OmarAds2002",
   linkedin: "https://www.linkedin.com/in/omar-ads-2aa465203/",
   email: "omarads2002@gmail.com",
@@ -105,69 +117,55 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
   );
 }
 
+// Scroll reveal: fade + slide up, plays once when the element enters view
+function Reveal({
+  children,
+  delay = 0,
+  className,
+}: {
+  children: React.ReactNode;
+  delay?: number;
+  className?: string;
+}) {
+  return (
+    <motion.div
+      className={className}
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.2 }}
+      transition={{ duration: 0.5, delay, ease: "easeOut" }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
 export default function Home() {
   return (
     <main className="min-h-screen bg-neutral-950 text-neutral-100">
-      {/* Hero animation keyframes — inlined so it needs no tailwind config */}
-      <style>{`
-        @keyframes drift {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          25%      { transform: translate(30px, -20px) scale(1.05); }
-          50%      { transform: translate(-20px, 15px) scale(0.95); }
-          75%      { transform: translate(15px, 25px) scale(1.02); }
-        }
-        .orb { position: absolute; border-radius: 9999px; pointer-events: none; will-change: transform; }
-        @media (prefers-reduced-motion: reduce) {
-          .orb { animation: none !important; }
-        }
-      `}</style>
-
       <div className="w-full max-w-[1800px] mx-auto px-8 py-16 sm:py-24">
 
         {/* Hero */}
-        <section className="relative mb-20 max-w-3xl">
-          {/* Animated gradient orbs */}
-          <div
-            className="orb"
-            style={{
-              top: "-80px", left: "-80px", width: "500px", height: "500px",
-              background: "rgba(124,58,237,0.18)", filter: "blur(120px)",
-              animation: "drift 12s ease-in-out infinite",
-            }}
-          />
-          <div
-            className="orb"
-            style={{
-              top: "-40px", left: "33%", width: "400px", height: "400px",
-              background: "rgba(99,102,241,0.14)", filter: "blur(100px)",
-              animation: "drift 16s ease-in-out infinite reverse",
-            }}
-          />
-          <div
-            className="orb"
-            style={{
-              top: "40px", left: "-40px", width: "350px", height: "350px",
-              background: "rgba(217,70,239,0.12)", filter: "blur(100px)",
-              animation: "drift 20s ease-in-out infinite",
-            }}
-          />
-
-          <h1 className="relative text-4xl sm:text-5xl font-semibold tracking-tight mb-4">
-            {INFO.name}
-          </h1>
-          <p className="relative text-lg text-neutral-400 leading-relaxed mb-8">
-            {INFO.tagline}
-          </p>
-          <div className="relative flex flex-wrap gap-4 text-sm">
-            <a href={INFO.github} className="underline underline-offset-4 hover:text-violet-400 transition-colors">
-              GitHub
-            </a>
-            <a href={INFO.linkedin} className="underline underline-offset-4 hover:text-violet-400 transition-colors">
-              LinkedIn
-            </a>
-            <a href={`mailto:${INFO.email}`} className="underline underline-offset-4 hover:text-violet-400 transition-colors">
-              Email
-            </a>
+        <section className="relative mb-20 min-h-[360px] flex items-center overflow-hidden">
+          <HeroScene />
+          <div className="relative max-w-2xl">
+            <h1 className="text-4xl sm:text-5xl font-semibold tracking-tight mb-4">
+              {INFO.name}
+            </h1>
+            <p className="text-lg text-neutral-400 leading-relaxed mb-8">
+              {INFO.tagline}
+            </p>
+            <div className="flex flex-wrap gap-4 text-sm">
+              <a href={INFO.github} className="underline underline-offset-4 hover:text-violet-400 transition-colors">
+                GitHub
+              </a>
+              <a href={INFO.linkedin} className="underline underline-offset-4 hover:text-violet-400 transition-colors">
+                LinkedIn
+              </a>
+              <a href={`mailto:${INFO.email}`} className="underline underline-offset-4 hover:text-violet-400 transition-colors">
+                Email
+              </a>
+            </div>
           </div>
         </section>
 
@@ -175,10 +173,11 @@ export default function Home() {
         <section className="mb-20">
           <SectionTitle>Projects</SectionTitle>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {PROJECTS.map((p) => (
-              <div
+            {PROJECTS.map((p, i) => (
+              <Reveal
                 key={p.title}
-                className="flex flex-col rounded-xl border border-neutral-800 overflow-hidden bg-neutral-900/50"
+                delay={(i % 2) * 0.1}
+                className="flex flex-col rounded-xl border border-neutral-800 overflow-hidden bg-neutral-900/50 h-full"
               >
                 {/* Video (or placeholder) */}
                 {p.video ? (
@@ -217,13 +216,15 @@ export default function Home() {
                   {p.link && (
                     <a
                       href={p.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="text-sm underline underline-offset-4 hover:text-violet-400 transition-colors"
                     >
                       View on GitHub →
                     </a>
                   )}
                 </div>
-              </div>
+              </Reveal>
             ))}
           </div>
         </section>
@@ -233,7 +234,7 @@ export default function Home() {
           <div className="max-w-4xl mx-auto">
             <SectionTitle>Experience</SectionTitle>
             {EXPERIENCE.map((e) => (
-              <div key={e.role} className="mb-6">
+              <Reveal key={e.role} className="mb-6">
                 <div className="flex items-baseline justify-between gap-4 mb-2">
                   <h3 className="text-lg font-medium">
                     {e.role} · {e.org}
@@ -247,7 +248,7 @@ export default function Home() {
                     <li key={i} className="text-sm">{pt}</li>
                   ))}
                 </ul>
-              </div>
+              </Reveal>
             ))}
             </div>
         </section>
@@ -256,11 +257,13 @@ export default function Home() {
         <section className="mb-20">
           <div className="max-w-4xl mx-auto">
             <SectionTitle>Publication</SectionTitle>
-            <h3 className="text-lg font-medium leading-snug mb-1">{PUBLICATION.title}</h3>
-            <p className="text-sm text-neutral-500 mb-2">{PUBLICATION.venue}</p>
-            <p className="text-sm text-neutral-400 leading-relaxed">
-              {PUBLICATION.detail}
-            </p>
+            <Reveal>
+              <h3 className="text-lg font-medium leading-snug mb-1">{PUBLICATION.title}</h3>
+              <p className="text-sm text-neutral-500 mb-2">{PUBLICATION.venue}</p>
+              <p className="text-sm text-neutral-400 leading-relaxed">
+                {PUBLICATION.detail}
+              </p>
+            </Reveal>
           </div>
         </section>
 
@@ -269,7 +272,7 @@ export default function Home() {
           <div className="max-w-4xl mx-auto">
             <SectionTitle>Education</SectionTitle>
             {EDUCATION.map((ed) => (
-              <div key={ed.school} className="mb-6">
+              <Reveal key={ed.school} className="mb-6">
                 <div className="flex items-baseline justify-between gap-4 mb-1">
                   <h3 className="text-lg font-medium">{ed.school}</h3>
                   <span className="text-sm text-neutral-500 whitespace-nowrap">
@@ -278,7 +281,7 @@ export default function Home() {
                 </div>
                 <p className="text-sm text-neutral-300 mb-1">{ed.degree}</p>
                 <p className="text-sm text-neutral-400">{ed.detail}</p>
-              </div>
+              </Reveal>
             ))}
           </div>
         </section>
@@ -287,23 +290,25 @@ export default function Home() {
         <section className="mb-20">
           <div className="max-w-4xl mx-auto">
             <SectionTitle>About</SectionTitle>
-            <p className="text-neutral-400 leading-relaxed mb-4">
-              I&apos;m an M.Sc. Interdisciplinary Robotics student at Purdue, focused on
-              reinforcement learning and control for legged and humanoid robots. I work
-              across the full stack: RL policy training in Isaac Lab and MuJoCo,
-              sim-to-sim and sim-to-real transfer, behavior-tree-based decision systems,
-              and the ROS2 / C++ infrastructure that ties it together.
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {CERTS.map((c) => (
-                <span
-                  key={c}
-                  className="text-xs px-2 py-0.5 rounded bg-neutral-800 text-neutral-400"
-                >
-                  {c}
-                </span>
-              ))}
-            </div>
+            <Reveal>
+              <p className="text-neutral-400 leading-relaxed mb-4">
+                I&apos;m an M.Sc. Interdisciplinary Robotics student at Purdue, focused on
+                reinforcement learning and control for legged and humanoid robots. I work
+                across the full stack: RL policy training in Isaac Lab and MuJoCo,
+                sim-to-sim and sim-to-real transfer, behavior-tree-based decision systems,
+                and the ROS2 / C++ infrastructure that ties it together.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {CERTS.map((c) => (
+                  <span
+                    key={c}
+                    className="text-xs px-2 py-0.5 rounded bg-neutral-800 text-neutral-400"
+                  >
+                    {c}
+                  </span>
+                ))}
+              </div>
+            </Reveal>
           </div>
         </section>
 
@@ -311,12 +316,14 @@ export default function Home() {
         <section className="mb-20">
           <div className="max-w-4xl mx-auto">
             <SectionTitle>Contact</SectionTitle>
-            <p className="text-neutral-400 leading-relaxed">
-              Open to roles in RL, robot learning, and behavior/controls engineering.{" "}
-              <a href={`mailto:${INFO.email}`} className="underline underline-offset-4 hover:text-violet-400 transition-colors">
-                {INFO.email}
-              </a>
-            </p>
+            <Reveal>
+              <p className="text-neutral-400 leading-relaxed">
+                Open to roles in RL, robot learning, and behavior/controls engineering.{" "}
+                <a href={`mailto:${INFO.email}`} className="underline underline-offset-4 hover:text-violet-400 transition-colors">
+                  {INFO.email}
+                </a>
+              </p>
+            </Reveal>
           </div>
         </section>
 
