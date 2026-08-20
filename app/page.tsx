@@ -111,7 +111,7 @@ const TIERS = ["Foundational", "Proficient", "Advanced"] as const;
 // level = where you are now; target = where you're headed (ghost segment)
 const SKILLS = [
   { name: "Reinforcement Learning (PPO/SAC)", level: 2, target: 3, jobs: ["A", "B"] },
-  { name: "MuJoCo", level: 3, target: 3, jobs: ["A"] },
+  { name: "MuJoCo", level: 2, target: 3, jobs: ["A"] },
   { name: "Behavior Trees (BT.CPP v4)", level: 2, target: 3, jobs: ["C", "B"] },
   { name: "Python / PyTorch", level: 2, target: 3, jobs: ["A", "C"] },
   { name: "Isaac Lab / Isaac Sim", level: 2, target: 3, jobs: ["A", "B"] },
