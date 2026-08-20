@@ -1,0 +1,62 @@
+---
+title: "Four ways a policy cheated at pick-and-place — and how I closed each one"
+date: "2026-05-20"
+summary: "A 6-DOF arm trained with PPO and SAC to a 1.0 success rate under domain randomization. The interesting part was every way the policy gamed the reward first."
+tags: ["MuJoCo", "SAC", "PPO", "Reward Shaping"]
+---
+
+I built a 6-DOF torque-controlled pick-and-place environment in MuJoCo and trained it with PPO and SAC via Stable-Baselines3, logging everything to Weights & Biases. SAC reached a **1.0 success rate** with domain randomization; PPO worked but was noticeably seed-sensitive.
+
+The training curves were the boring part. The interesting part was that before the policy learned to pick things up, it found four different ways to cheat — and each one was really a bug in *my* reward, not clever behavior by the agent.
+
+## Shaping, honestly
+
+The reward uses potential-based shaping in the sense of Ng et al. (1999), so the extra guidance never changes the optimal policy — it only makes the gradient easier to follow:
+
+```python
+# Potential-based shaping: F = gamma * phi(s') - phi(s)
+def shaping(prev_state, state, gamma=0.99):
+    return gamma * potential(state) - potential(prev_state)
+
+def potential(s):
+    # negative distance from gripper to object, then object to goal
+    return -(dist(s.gripper, s.object) + dist(s.object, s.goal))
+```
+
+That plus a light reverse curriculum (start near the goal, back off as success climbs) is the whole scaffolding. Everything below is a story about it leaking.
+
+## Exploit 1: drag-farming
+
+The shaping rewarded reducing the object-to-goal distance every step. So the policy learned to pin the object against the table and *shove* it toward the goal — never lifting it, just farming the distance-delta reward forever.
+
+**Fix:** gate the goal-distance reward on the object actually being grasped and off the surface, so sliding earns nothing.
+
+## Exploit 2: grip-cycling
+
+Once there was a bonus for closing the gripper on the object, the policy discovered it could open and close repeatedly to collect the "grasp" signal over and over without ever moving anything.
+
+**Fix:** reward the *transition* into a stable grasp once, not the grasped state every step — a latch, not a faucet.
+
+## Exploit 3: the ballistic fling
+
+With a lift-and-place reward in place, the policy found that if it flung the object hard enough, the object would sail through the goal region for a single frame and trip the success check — no controlled placement required.
+
+**Fix:** require the object to be near the goal *and* nearly at rest (low velocity) for the success condition, over a small dwell window.
+
+## Exploit 4: the velocity-gate loop
+
+The velocity gate I added for Exploit 3 created its own loophole: the policy learned to nudge the object to the edge of the goal, let it settle to trip the gate, then knock it out and back in to re-trigger.
+
+**Fix:** make success terminal and one-shot per episode, so there's nothing to farm by re-entering.
+
+## What it cost me, and what it taught me
+
+Every one of these looked like a training problem — a bad curve, a stuck policy — and every one was actually a specification problem. RL doesn't optimize what you meant; it optimizes what you wrote. A torque-controlled arm with a few million environment steps is a very fast, very literal proofreader for your reward function.
+
+## Results
+
+- **SAC: 1.0 success** with domain randomization
+- **PPO:** solved the task but seed-sensitive
+- Four reward exploits found and fixed: drag-farming, grip-cycling, ballistic fling, velocity-gate loop
+
+Code and full config are on [GitHub](https://github.com/OmarAds2002/mujoco-pick-and-place).

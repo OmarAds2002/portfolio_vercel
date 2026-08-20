@@ -31,6 +31,7 @@ const PROJECTS = [
       "A mission-level behavior tree orchestrating a full Nav2 stack. Custom C++ BT nodes handle patrol, reactive object detection that interrupts navigation mid-drive, battery monitoring, and recovery behaviors.",
     tech: ["ROS2 Jazzy", "BT.CPP v4", "Nav2", "Gazebo", "C++"],
     link: "https://github.com/OmarAds2002/turtlebot3-autonomous-patrol",
+    post: "turtlebot3-autonomous-patrol",
     video: "/patrol-demo.mp4",
   },
   {
@@ -40,6 +41,7 @@ const PROJECTS = [
       "A 6-DOF torque-controlled pick-and-place environment trained with PPO and SAC. SAC reached a 1.0 success rate with domain randomization. Identified and fixed four distinct reward exploits.",
     tech: ["MuJoCo", "SB3", "PPO", "SAC", "Python"],
     link: "https://github.com/OmarAds2002/mujoco-pick-and-place",
+    post: "mujoco-pick-and-place",
     video: "/pickplace-demo.mp4",
   },
   {
@@ -49,6 +51,7 @@ const PROJECTS = [
       "Two UR10 arms trained to hand off a cylinder in Isaac Lab with PPO. 84% success rate, zero drops, 1024 parallel environments on a single GPU. Debugged a weld-geometry collision that caused persistent policy plateaus, then solved a hold-and-wait exploit with a mutual-grasp constraint.",
     tech: ["Isaac Lab", "PPO", "RSL-RL", "USD", "Domain Rand"],
     link: "https://github.com/OmarAds2002/bimanual-rl",
+    post: "bimanual-ur10-handoff",
     video: "/handoff_075x_smooth.mp4",
   },
 ];
@@ -93,6 +96,27 @@ const CERTS = [
   "Azure AI Fundamentals (AI-900)",
   "AWS Cloud Practitioner",
 ];
+
+// Role tracks a skill maps to. Hover a skill to see which apply.
+const JOBS: Record<string, { label: string; cls: string }> = {
+  A: { label: "RL / Robot Learning", cls: "bg-violet-500/15 text-violet-300 border-violet-500/30" },
+  B: { label: "Behavior & Controls", cls: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30" },
+  C: { label: "Robotics Software", cls: "bg-sky-500/15 text-sky-300 border-sky-500/30" },
+};
+
+// current / target on a 0–100 scale; jobs = which role tracks it serves
+const SKILLS = [
+  { name: "Reinforcement Learning (PPO/SAC)", current: 85, target: 95, jobs: ["A", "B"] },
+  { name: "Isaac Lab / Isaac Sim", current: 80, target: 92, jobs: ["A", "B"] },
+  { name: "MuJoCo", current: 82, target: 90, jobs: ["A"] },
+  { name: "Behavior Trees (BT.CPP)", current: 85, target: 90, jobs: ["C", "B"] },
+  { name: "ROS2 / Nav2", current: 80, target: 88, jobs: ["C", "B"] },
+  { name: "C++", current: 78, target: 90, jobs: ["C", "B"] },
+  { name: "Python / PyTorch", current: 90, target: 92, jobs: ["A", "C"] },
+  { name: "Sim-to-Real Transfer", current: 65, target: 88, jobs: ["A", "B"] },
+  { name: "Domain Randomization", current: 78, target: 88, jobs: ["A"] },
+  { name: "Optimal Control / LQR", current: 45, target: 85, jobs: ["B"] },
+];
 // ─────────────────────────────────────────────────────────────
 
 function StatusBadge({ status }: { status: string }) {
@@ -114,6 +138,65 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
     <h2 className="text-sm font-medium uppercase tracking-widest text-neutral-500 mb-8">
       {children}
     </h2>
+  );
+}
+
+function JobBadge({ id }: { id: string }) {
+  const j = JOBS[id];
+  if (!j) return null;
+  return (
+    <span
+      title={j.label}
+      className={`text-[10px] leading-none px-1.5 py-1 rounded border font-medium ${j.cls}`}
+    >
+      {id}
+    </span>
+  );
+}
+
+function SkillBar({
+  name,
+  current,
+  target,
+  jobs,
+}: {
+  name: string;
+  current: number;
+  target: number;
+  jobs: string[];
+}) {
+  return (
+    <div className="group py-2.5">
+      <div className="flex items-center justify-between gap-3 mb-1.5">
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="text-sm text-neutral-200 truncate">{name}</span>
+          <span className="flex gap-1 shrink-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 md:focus-within:opacity-100 transition-opacity duration-200">
+            {jobs.map((j) => (
+              <JobBadge key={j} id={j} />
+            ))}
+          </span>
+        </div>
+        <span className="text-xs text-neutral-500 tabular-nums shrink-0">
+          {current}
+          <span className="text-neutral-700"> / {target}</span>
+        </span>
+      </div>
+      <div className="relative h-2 rounded-full bg-neutral-800 overflow-hidden">
+        {/* target = faint ghost fill */}
+        <div
+          className="absolute inset-y-0 left-0 rounded-full bg-violet-500/25"
+          style={{ width: `${target}%` }}
+        />
+        {/* current = solid, animates in on scroll */}
+        <motion.div
+          className="absolute inset-y-0 left-0 rounded-full bg-violet-500"
+          initial={{ width: 0 }}
+          whileInView={{ width: `${current}%` }}
+          viewport={{ once: true, amount: 0.5 }}
+          transition={{ duration: 0.9, ease: "easeOut" }}
+        />
+      </div>
+    </div>
   );
 }
 
@@ -165,6 +248,9 @@ export default function Home() {
               <a href={`mailto:${INFO.email}`} className="underline underline-offset-4 hover:text-violet-400 transition-colors">
                 Email
               </a>
+              <a href="/blog" className="underline underline-offset-4 hover:text-violet-400 transition-colors">
+                Writing
+              </a>
             </div>
           </div>
         </section>
@@ -213,19 +299,68 @@ export default function Home() {
                       </span>
                     ))}
                   </div>
-                  {p.link && (
-                    <a
-                      href={p.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sm underline underline-offset-4 hover:text-violet-400 transition-colors"
-                    >
-                      View on GitHub →
-                    </a>
-                  )}
+                  <div className="flex items-center gap-4">
+                    {p.link && (
+                      <a
+                        href={p.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm underline underline-offset-4 hover:text-violet-400 transition-colors"
+                      >
+                        View on GitHub →
+                      </a>
+                    )}
+                    {p.post && (
+                      <a
+                        href={`/blog/${p.post}`}
+                        className="text-sm underline underline-offset-4 hover:text-violet-400 transition-colors"
+                      >
+                        Read the writeup →
+                      </a>
+                    )}
+                  </div>
                 </div>
               </Reveal>
             ))}
+          </div>
+        </section>
+
+        {/* Skills */}
+        <section className="mb-20">
+          <SectionTitle>Skills</SectionTitle>
+          <div className="max-w-4xl">
+            {/* Legend */}
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mb-6 text-xs text-neutral-500">
+              <div className="flex items-center gap-2">
+                <span className="inline-block w-6 h-2 rounded-full bg-violet-500" />
+                Current
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="inline-block w-6 h-2 rounded-full bg-violet-500/25" />
+                Target
+              </div>
+              <span className="text-neutral-700">·</span>
+              <span className="hidden sm:inline">Hover a skill to see role tracks:</span>
+              {Object.keys(JOBS).map((id) => (
+                <span key={id} className="flex items-center gap-1.5">
+                  <JobBadge id={id} />
+                  <span>{JOBS[id].label}</span>
+                </span>
+              ))}
+            </div>
+
+            {/* Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-1">
+              {SKILLS.map((s) => (
+                <SkillBar
+                  key={s.name}
+                  name={s.name}
+                  current={s.current}
+                  target={s.target}
+                  jobs={s.jobs}
+                />
+              ))}
+            </div>
           </div>
         </section>
 

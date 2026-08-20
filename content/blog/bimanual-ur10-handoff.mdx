@@ -1,0 +1,69 @@
+---
+title: "The plateau was geometry, not reward: a bimanual handoff in Isaac Lab"
+date: "2026-08-18"
+summary: "Two UR10 arms learning to hand off an object with PPO — and the two bugs that taught me more than any training curve did."
+tags: ["Isaac Lab", "PPO", "Reinforcement Learning", "Manipulation"]
+---
+
+My last robotics project ran in ROS2 and Gazebo. This time I wanted real reps with Isaac Lab and GPU-parallel reinforcement learning — the kind of simulation the humanoid teams actually train in. So I built two robot arms that hand an object to each other, and trained them with PPO.
+
+Here's the part that taught me the most.
+
+## The arm that kept circling
+
+One of the two arms kept circling the object it was supposed to grab. Approach, veer off, loop back, try again — never closing the last few centimeters. I rewrote the reward function three times. The reward was never the problem.
+
+A grasp in the sim welds the object to the arm's end-effector. My weld snapped the object's center onto the wrist origin, so when the reward said *"second arm reaches the object,"* it really meant *"bring two robot wrists into the same 10 cm of space."* Two chunks of metal cannot occupy the same spot, so the physics engine shoved them apart every step.
+
+The arm was not confused. It was avoiding a collision I had written into the task by accident. The plateau I kept hitting was not a flat spot in the reward — it was the collision boundary.
+
+```python
+# What I thought the reward meant:
+#   "reward the receiver for getting near the object"
+dist = torch.norm(receiver_ee_pos - object_pos, dim=-1)
+reward = -dist
+
+# What it actually meant, because object_pos was welded to the
+# giver's wrist origin:
+#   "reward the two wrists for occupying the same point"
+# ...which the physics solver actively prevents. Hence the plateau.
+```
+
+The fix wasn't in the reward at all — it was in the weld offset, so the grasped object sits where a held object should, not on top of the giver's wrist.
+
+## The smart policy that refused to hand off
+
+Fixing that surfaced a second problem, and this time the policy was being *smart*. It preferred to hold the object and wait instead of handing it over. The math backed it up: parking earned a safe, steady reward for the rest of the episode, while attempting the handoff risked dropping the object and ending early. A small bonus for finishing could not beat that.
+
+```python
+# Parking: safe, bounded, collected every step until timeout
+E[park]   = sum(step_reward for _ in range(remaining_steps))
+
+# Handoff: one-shot bonus, but a non-trivial chance of dropping
+#          and ending the episode early
+E[handoff] = p_success * finish_bonus + (1 - p_success) * drop_penalty
+
+# For small finish_bonus, E[park] > E[handoff]. The policy noticed.
+```
+
+The fix was to change the game so that finishing is never the risky move: **both arms hold the object at once before the first one lets go.** With a mutual-grasp constraint at the transfer, there is no moment where releasing means gambling the whole episode.
+
+## About the weld — it's wrong on purpose
+
+The weld is not physically accurate, and that is deliberate. The plain UR10 in this build has no gripper, and I wanted to isolate the handoff itself — the timing, the coordination, the transfer — without also solving contact-rich grasping at the same time.
+
+Two hard problems are easier one at a time.
+
+## Results
+
+- **84% success**, zero drops
+- **No curriculum needed**
+- **1024 parallel environments** on a single GPU
+
+## What's next
+
+A real gripper. Contact-based grasping with friction and force closure. And wiring the contact sensors so self-collisions carry a *real* penalty instead of the accidental geometric guardrail that started this whole thing.
+
+## The lesson
+
+When a policy plateaus at a suspiciously specific number, check the geometry before you touch the reward.

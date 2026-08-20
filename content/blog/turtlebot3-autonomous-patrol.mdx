@@ -1,0 +1,69 @@
+---
+title: "One process to tick the tree: a TurtleBot3 patrol with BT.CPP and Nav2"
+date: "2026-06-15"
+summary: "Seven custom C++ behavior-tree nodes, a full Nav2 stack, and the architecture pivot that finally made reactive interrupts work mid-drive."
+tags: ["ROS2", "BT.CPP v4", "Nav2", "C++"]
+---
+
+The goal: a TurtleBot3 that patrols a four-room world on its own, interrupts its own navigation the instant it detects an object, monitors its battery, and recovers when a goal fails. All of the decision logic lives in a behavior tree built with BT.CPP v4, sitting on top of a full Nav2 stack.
+
+The project came together once I stopped fighting the architecture and made one decision that fixed three problems at once.
+
+## The pivot: a standalone commander
+
+My first attempt tried to drive the tree from inside a Nav2 node. It half-worked and was miserable to reason about. The fix was to give the behavior tree its own home: a standalone `patrol_commander` process that owns the BT factory and ticks the tree at 10 Hz on a `MultiThreadedExecutor`. Nav2's `bt_navigator` then serves purely as the navigation-layer action server underneath it.
+
+Clean separation: the commander decides *what* to do; Nav2 executes *how* to get there.
+
+## Pattern 1: subscriber stores, tick decides
+
+The recurring trap in ROS2 behavior trees is doing work inside subscriber callbacks. Callbacks fire on their own schedule; the tree ticks on its own schedule. Mixing them is a race condition waiting to happen.
+
+The rule that fixed it: **subscribers only store the latest message; the tick reads that stored state and makes all decisions.**
+
+```cpp
+// Subscriber: just cache. No logic here.
+void onDetection(const std_msgs::msg::String::SharedPtr msg) {
+  last_detection_ = *msg;   // store, nothing else
+}
+
+// ConditionNode: the tick reads the cache and decides.
+BT::NodeStatus ObjectDetected::tick() {
+  return last_detection_.data.empty()
+           ? BT::NodeStatus::FAILURE
+           : BT::NodeStatus::SUCCESS;
+}
+```
+
+## Pattern 2: the two-phase async action client
+
+Sending a Nav2 goal is asynchronous, but a BT node has to return every tick. So the navigation node is a `StatefulActionNode`: `onStart()` fires the goal once, and `onRunning()` returns `RUNNING` until the action server reports done — never blocking the tick loop.
+
+## Pattern 3: reactive interrupt with Inverter + ReactiveSequence
+
+The whole point of the patrol is that a detection has to interrupt navigation *mid-drive*, not after the current goal finishes. A `ReactiveSequence` re-checks its left children every tick, so wrapping the detection check in an `Inverter` in front of the patrol action means: keep patrolling *only while* nothing is detected. The moment the condition flips, the sequence halts the running navigation action for us.
+
+```xml
+<ReactiveSequence>
+  <Inverter>
+    <ObjectDetected/>
+  </Inverter>
+  <NavigateToWaypoint waypoint="{next_wp}"/>
+</ReactiveSequence>
+```
+
+## Pattern 4: a BTLogger singleton
+
+Debugging a tree that ticks ten times a second is hopeless without structured logging. A `BTLogger` singleton gives every node one place to report state transitions, so the tick history reads like a story instead of a wall of interleaved prints.
+
+## Three bugs worth remembering
+
+- **Twist vs TwistStamped.** Nav2 publishes a plain `Twist`, but the Gazebo bridge expected `TwistStamped`. The robot simply didn't move, with no error — the bridge config was silently dropping messages.
+- **Frame mismatch.** Waypoints defined in the map frame didn't line up with the Gazebo world frame. The robot drove confidently to the wrong places until the transforms agreed.
+- **Lifecycle deadlock.** Bringing up the Nav2 `lifecycle_manager` in the wrong order deadlocked the stack on startup — a classic "everything's waiting on everything" that only resolves once the activation sequence is right.
+
+## The lesson
+
+Behavior trees make the *decision* logic legible, but they don't save you from systems problems underneath — frames, message types, lifecycle ordering. Getting the commander architecture right first is what made all the tree-level patterns actually work.
+
+Full stack and demo on [GitHub](https://github.com/OmarAds2002/turtlebot3-autonomous-patrol).
