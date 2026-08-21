@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import dynamic from "next/dynamic";
+import Image from "next/image";
 
 // Lazy-load the canvas hero animation — keeps it out of the initial bundle
 // so it never blocks first paint / LCP. Renders only on the client.
@@ -104,22 +105,68 @@ const JOBS: Record<string, { label: string; cls: string }> = {
   C: { label: "Robotics Software", cls: "bg-sky-500/15 text-sky-300 border-sky-500/30" },
 };
 
-// current / target on a 0–100 scale; jobs = which role tracks it serves
-// Proficiency tiers, low → high. level/target are 1-based indices into this.
-const TIERS = ["Foundational", "Proficient", "Advanced"] as const;
-
-// level = where you are now; target = where you're headed (ghost segment)
+// desc = what you've built with this skill
+// next = what you're actively working toward (omit if you're not pushing further)
 const SKILLS = [
-  { name: "Reinforcement Learning (PPO/SAC)", level: 2, target: 3, jobs: ["A", "B"] },
-  { name: "MuJoCo", level: 2, target: 3, jobs: ["A"] },
-  { name: "Behavior Trees (BT.CPP v4)", level: 2, target: 3, jobs: ["C", "B"] },
-  { name: "Python / PyTorch", level: 2, target: 3, jobs: ["A", "C"] },
-  { name: "Isaac Lab / Isaac Sim", level: 2, target: 3, jobs: ["A", "B"] },
-  { name: "ROS2 / Nav2", level: 2, target: 3, jobs: ["C", "B"] },
-  { name: "C++", level: 2, target: 3, jobs: ["C", "B"] },
-  { name: "Sim-to-Real Transfer", level: 2, target: 3, jobs: ["A", "B"] },
-  { name: "Domain Randomization", level: 2, target: 2, jobs: ["A"] },
-  { name: "Optimal Control / LQR", level: 1, target: 3, jobs: ["B"] },
+  {
+    name: "Reinforcement Learning (PPO / SAC)",
+    desc: "3 end-to-end projects — reward shaping, curriculum learning, 4 exploit fixes",
+    next: "iLQR comparison studies, model-based RL",
+    jobs: ["A", "B"],
+  },
+  {
+    name: "MuJoCo",
+    desc: "Custom envs, 6-DOF torque control, G1 29-DOF MJCF authoring, sim-to-sim pipelines",
+    next: "Full sim-to-real deployment pipeline",
+    jobs: ["A"],
+  },
+  {
+    name: "Behavior Trees (BT.CPP v4)",
+    desc: "7 custom C++ nodes — reactive interrupt, async action clients, Nav2 integration",
+    next: "Mission-level coordination across multiple robots",
+    jobs: ["C", "B"],
+  },
+  {
+    name: "Python / PyTorch",
+    desc: "SB3, RSL-RL, WandB, data pipelines, production ML at Dar",
+    next: "Custom network architectures, encoder design",
+    jobs: ["A", "C"],
+  },
+  {
+    name: "Isaac Lab / Isaac Sim",
+    desc: "DirectRLEnv from scratch, 1024 parallel envs, USD scene authoring",
+    next: "Multi-task training, terrain curriculum",
+    jobs: ["A", "B"],
+  },
+  {
+    name: "ROS2 / Nav2",
+    desc: "Full Nav2 stack — SLAM, AMCL, lifecycle management, custom BT integration",
+    next: "Hardware drivers, real-robot deployment",
+    jobs: ["C", "B"],
+  },
+  {
+    name: "C++",
+    desc: "RAII patterns, move semantics, concurrency, STL — all BT nodes written in C++",
+    next: "Real-time control loops, embedded targets",
+    jobs: ["C", "B"],
+  },
+  {
+    name: "Sim-to-Real Transfer",
+    desc: "Sim-to-sim evaluation pipelines (Isaac → MuJoCo), domain randomization",
+    next: "Hardware deployment, system ID, reality gap closing",
+    jobs: ["A", "B"],
+  },
+  {
+    name: "Domain Randomization",
+    desc: "Mass, friction, geometry perturbation across Isaac Lab and MuJoCo projects",
+    jobs: ["A"],
+  },
+  {
+    name: "Optimal Control / LQR",
+    desc: "MIT 6.832 coursework — energy shaping, LQR, ZMP, centroidal dynamics",
+    next: "ECE 59500 (RL: Theory & Algorithms), iLQR on bimanual task",
+    jobs: ["B"],
+  },
 ];
 // ─────────────────────────────────────────────────────────────
 
@@ -158,58 +205,39 @@ function JobBadge({ id }: { id: string }) {
   );
 }
 
-function SkillBar({
+function SkillCard({
   name,
-  level,
-  target,
+  desc,
+  next,
   jobs,
 }: {
   name: string;
-  level: number;
-  target: number;
+  desc: string;
+  next?: string;
   jobs: string[];
 }) {
   return (
-    <div className="group py-2.5">
-      <div className="flex items-center justify-between gap-3 mb-1.5">
-        <div className="flex items-center gap-2 min-w-0">
-          <span className="text-sm text-neutral-200 truncate">{name}</span>
-          <span className="flex gap-1 shrink-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 md:focus-within:opacity-100 transition-opacity duration-200">
-            {jobs.map((j) => (
-              <JobBadge key={j} id={j} />
-            ))}
-          </span>
-        </div>
-        <span className="text-xs text-neutral-400 shrink-0">
-          {TIERS[level - 1]}
-          {target > level && (
-            <span className="text-neutral-600"> → {TIERS[target - 1]}</span>
-          )}
+    <div className="group rounded-lg border border-neutral-800 bg-neutral-900/40 px-4 py-3.5">
+      {/* Name + role badges */}
+      <div className="flex items-center gap-2 mb-1.5">
+        <span className="text-sm font-medium text-neutral-200">{name}</span>
+        <span className="flex gap-1 shrink-0">
+          {jobs.map((j) => (
+            <JobBadge key={j} id={j} />
+          ))}
         </span>
       </div>
-      <div className="flex gap-1.5">
-        {[1, 2, 3].map((seg) => {
-          const filled = seg <= level;
-          const isTarget = seg > level && seg <= target;
-          return (
-            <motion.div
-              key={seg}
-              className={`h-2 flex-1 rounded-full ${
-                filled
-                  ? "bg-violet-500"
-                  : isTarget
-                  ? "bg-violet-500/20"
-                  : "bg-neutral-800"
-              }`}
-              initial={{ opacity: 0, scaleX: 0.4 }}
-              whileInView={{ opacity: 1, scaleX: 1 }}
-              viewport={{ once: true, amount: 0.6 }}
-              transition={{ duration: 0.5, delay: (seg - 1) * 0.08, ease: "easeOut" }}
-              style={{ transformOrigin: "left" }}
-            />
-          );
-        })}
-      </div>
+
+      {/* What I've done */}
+      <p className="text-xs text-neutral-400 leading-relaxed">{desc}</p>
+
+      {/* Where I'm headed */}
+      {next && (
+        <p className="text-xs text-neutral-600 leading-relaxed mt-1.5">
+          <span className="text-violet-400/70">Targeting:</span>{" "}
+          {next}
+        </p>
+      )}
     </div>
   );
 }
@@ -245,26 +273,42 @@ export default function Home() {
         {/* Hero */}
         <section className="relative mb-20 min-h-[360px] flex items-center overflow-hidden">
           <HeroScene />
-          <div className="relative max-w-2xl">
-            <h1 className="text-4xl sm:text-5xl font-semibold tracking-tight mb-4">
-              {INFO.name}
-            </h1>
-            <p className="text-lg text-neutral-400 leading-relaxed mb-8">
-              {INFO.tagline}
-            </p>
-            <div className="flex flex-wrap gap-4 text-sm">
-              <a href={INFO.github} className="underline underline-offset-4 hover:text-violet-400 transition-colors">
-                GitHub
-              </a>
-              <a href={INFO.linkedin} className="underline underline-offset-4 hover:text-violet-400 transition-colors">
-                LinkedIn
-              </a>
-              <a href={`mailto:${INFO.email}`} className="underline underline-offset-4 hover:text-violet-400 transition-colors">
-                Email
-              </a>
-              <a href="/blog" className="underline underline-offset-4 hover:text-violet-400 transition-colors">
-                Writing
-              </a>
+          <div className="relative flex flex-col-reverse sm:flex-row items-center sm:items-center gap-10 sm:gap-16 w-full">
+            {/* Text */}
+            <div className="max-w-2xl">
+              <h1 className="text-4xl sm:text-5xl font-semibold tracking-tight mb-4">
+                {INFO.name}
+              </h1>
+              <p className="text-lg text-neutral-400 leading-relaxed mb-8">
+                {INFO.tagline}
+              </p>
+              <div className="flex flex-wrap gap-4 text-sm">
+                <a href={INFO.github} className="underline underline-offset-4 hover:text-violet-400 transition-colors">
+                  GitHub
+                </a>
+                <a href={INFO.linkedin} className="underline underline-offset-4 hover:text-violet-400 transition-colors">
+                  LinkedIn
+                </a>
+                <a href={`mailto:${INFO.email}`} className="underline underline-offset-4 hover:text-violet-400 transition-colors">
+                  Email
+                </a>
+                <a href="/blog" className="underline underline-offset-4 hover:text-violet-400 transition-colors">
+                  Writing
+                </a>
+              </div>
+            </div>
+
+            {/* Headshot */}
+            <div className="shrink-0">
+              <div className="relative w-40 h-40 sm:w-48 sm:h-48 rounded-full overflow-hidden ring-2 ring-neutral-800 ring-offset-4 ring-offset-neutral-950">
+                <Image
+                  src="/headshot.jpg"
+                  alt="Omar Ads"
+                  fill
+                  className="object-cover"
+                  priority
+                />
+              </div>
             </div>
           </div>
         </section>
@@ -343,19 +387,8 @@ export default function Home() {
         <section className="mb-20">
           <SectionTitle>Skills</SectionTitle>
           <div className="max-w-4xl mx-auto">
-            {/* Legend */}
+            {/* Role legend */}
             <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mb-6 text-xs text-neutral-500">
-              <div className="flex items-center gap-2">
-                <span className="inline-block w-5 h-2 rounded-full bg-violet-500" />
-                Current level
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="inline-block w-5 h-2 rounded-full bg-violet-500/20" />
-                Targeting
-              </div>
-              <span className="text-neutral-700">·</span>
-              <span>Foundational → Proficient → Advanced</span>
-              <span className="text-neutral-700 hidden sm:inline">·</span>
               {Object.keys(JOBS).map((id) => (
                 <span key={id} className="flex items-center gap-1.5">
                   <JobBadge id={id} />
@@ -365,15 +398,16 @@ export default function Home() {
             </div>
 
             {/* Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-1">
-              {SKILLS.map((s) => (
-                <SkillBar
-                  key={s.name}
-                  name={s.name}
-                  level={s.level}
-                  target={s.target}
-                  jobs={s.jobs}
-                />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {SKILLS.map((s, i) => (
+                <Reveal key={s.name} delay={(i % 2) * 0.06}>
+                  <SkillCard
+                    name={s.name}
+                    desc={s.desc}
+                    next={s.next}
+                    jobs={s.jobs}
+                  />
+                </Reveal>
               ))}
             </div>
           </div>
